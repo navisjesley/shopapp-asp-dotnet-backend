@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderapi
+  namespace: shopapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderapi
+  template:
+    metadata:
+      labels:
+        app: orderapi
+    spec:
+      nodeSelector:
+        kubernetes.azure.com/mode: system
+      containers:
+        - name: orderapi
+          image: shopappacr.azurecr.io/orderapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+
+            - name: AzureAd__Instance
+              value: "https://login.microsoftonline.com/"
+
+            - name: AzureAd__TenantId
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: AzureAd__TenantId
+
+            - name: AzureAd__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: AzureAd__ClientId
+
+            - name: AzureAd__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: AzureAd__Audience
+
+            - name: Authorization__OrderApiAccessRole
+              value: "OrderApi.Access"
+
+            - name: UserApi__BaseUrl
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: UserApi__BaseUrl
+
+            - name: UserApi__Resource
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: UserApi__Resource
+
+            - name: UserApi__TenantId
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: UserApi__TenantId
+
+            - name: UserApi__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: UserApi__ClientId
+                  
+            - name: UserApi__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: UserApi__ClientSecret
+
+            - name: ConnectionStrings__OrderDb
+              valueFrom:
+                secretKeyRef:
+                  name: orderapi-secrets
+                  key: ConnectionStrings__OrderDb
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderapi
+  namespace: shopapp
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: orderapi
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP

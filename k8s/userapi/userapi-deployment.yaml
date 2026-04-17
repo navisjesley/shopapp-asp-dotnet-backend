@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userapi
+  namespace: shopapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userapi
+  template:
+    metadata:
+      labels:
+        app: userapi
+    spec:
+      nodeSelector:
+        kubernetes.azure.com/mode: system
+      containers:
+        - name: userapi
+          image: shopappacr.azurecr.io/userapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+
+            - name: AzureAd__Instance
+              value: "https://login.microsoftonline.com/"
+
+            - name: AzureAd__TenantId
+              valueFrom:
+                secretKeyRef:
+                  name: userapi-secrets
+                  key: AzureAd__TenantId
+
+            - name: AzureAd__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: userapi-secrets
+                  key: AzureAd__ClientId
+
+            - name: AzureAd__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: userapi-secrets
+                  key: AzureAd__Audience
+
+            - name: Authorization__UserApiAccessRole
+              value: "UserApi.Access"
+
+            - name: ConnectionStrings__UserDb
+              valueFrom:
+                secretKeyRef:
+                  name: userapi-secrets
+                  key: ConnectionStrings__UserDb
+                  
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: userapi
+  namespace: shopapp
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: userapi
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
