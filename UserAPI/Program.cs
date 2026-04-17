@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 
-// let's test the build and push image to acr github pipeline 1
+// let's test the build and push image to acr github pipeline 2
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
