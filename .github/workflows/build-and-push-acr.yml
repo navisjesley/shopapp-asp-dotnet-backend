@@ -11,6 +11,9 @@ permissions:
 env:
   ACR_NAME: ${{ vars.ACR_NAME }}
   ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AKS_CLUSTER_NAME: ${{ vars.AKS_CLUSTER_NAME }}
+  AKS_NAMESPACE: ${{ vars.AKS_NAMESPACE }}
 
 jobs:
   detect-changes:
@@ -42,19 +45,19 @@ jobs:
 
           SERVICES=()
 
-          if echo "$CHANGED_FILES" | grep -qE '^CartAPI/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^CartAPI/|^k8s/cartapi/'; then
             SERVICES+=('{"name":"cartapi","dockerfile":"CartAPI/Dockerfile","context":"CartAPI"}')
           fi
 
-          if echo "$CHANGED_FILES" | grep -qE '^OrderAPI/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^OrderAPI/|^k8s/orderapi/'; then
             SERVICES+=('{"name":"orderapi","dockerfile":"OrderAPI/Dockerfile","context":"OrderAPI"}')
           fi
 
-          if echo "$CHANGED_FILES" | grep -qE '^ProductAPI/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^ProductAPI/|^k8s/productapi/'; then
             SERVICES+=('{"name":"productapi","dockerfile":"ProductAPI/Dockerfile","context":"ProductAPI"}')
           fi
 
-          if echo "$CHANGED_FILES" | grep -qE '^UserAPI/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^UserAPI/|^k8s/userapi/'; then
             SERVICES+=('{"name":"userapi","dockerfile":"UserAPI/Dockerfile","context":"UserAPI"}')
           fi
 
@@ -68,7 +71,7 @@ jobs:
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
           echo 'has_changes=true' >> "$GITHUB_OUTPUT"
 
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
     needs: detect-changes
     if: needs.detect-changes.outputs.has_changes == 'true'
@@ -104,3 +107,25 @@ jobs:
           tags: |
             ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:${{ github.sha }}
             ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:latest
+
+      - name: Set AKS admin context
+        uses: Azure/aks-set-context@v4
+        with:
+          resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+          admin: 'true'
+
+      - name: Apply manifests
+        run: kubectl apply -f "${{ matrix.manifest }}"
+
+      - name: Update deployment image
+        run: |
+          kubectl set image deployment/${{ matrix.deployment }} \
+            ${{ matrix.container }}=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:${{ github.sha }} \
+            -n "${{ env.AKS_NAMESPACE }}"
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/${{ matrix.deployment }} \
+            -n "${{ env.AKS_NAMESPACE }}" \
+            --timeout=180s
