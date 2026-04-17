@@ -64,7 +64,7 @@ jobs:
             exit 0
           fi
 
-          JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -s '{include: .}')
+          JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -cs '{include: .}')
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
           echo 'has_changes=true' >> "$GITHUB_OUTPUT"
 
