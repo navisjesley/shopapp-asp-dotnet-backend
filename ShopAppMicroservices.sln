@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAPI", "UserAPI\UserAPI.csproj", "{BFFF13B2-6985-43E0-8B7C-E12D24D39EA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductAPI", "ProductAPI\ProductAPI.csproj", "{7790DB65-A5C7-4518-B387-CF4E77D6C314}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartAPI", "CartAPI\CartAPI.csproj", "{DDDEB530-84F2-4379-AF32-0A7EFC6560F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderAPI", "OrderAPI\OrderAPI.csproj", "{9F53FC0C-FA4F-4B18-88F9-4A5927852CFC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFFF13B2-6985-43E0-8B7C-E12D24D39EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFF13B2-6985-43E0-8B7C-E12D24D39EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFF13B2-6985-43E0-8B7C-E12D24D39EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFF13B2-6985-43E0-8B7C-E12D24D39EA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7790DB65-A5C7-4518-B387-CF4E77D6C314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7790DB65-A5C7-4518-B387-CF4E77D6C314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7790DB65-A5C7-4518-B387-CF4E77D6C314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7790DB65-A5C7-4518-B387-CF4E77D6C314}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDDEB530-84F2-4379-AF32-0A7EFC6560F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDDEB530-84F2-4379-AF32-0A7EFC6560F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDDEB530-84F2-4379-AF32-0A7EFC6560F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDDEB530-84F2-4379-AF32-0A7EFC6560F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F53FC0C-FA4F-4B18-88F9-4A5927852CFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F53FC0C-FA4F-4B18-88F9-4A5927852CFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F53FC0C-FA4F-4B18-88F9-4A5927852CFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F53FC0C-FA4F-4B18-88F9-4A5927852CFC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
