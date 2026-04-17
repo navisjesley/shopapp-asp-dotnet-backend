@@ -46,19 +46,19 @@ jobs:
           SERVICES=()
 
           if echo "$CHANGED_FILES" | grep -qE '^CartAPI/|^k8s/cartapi/'; then
-            SERVICES+=('{"name":"cartapi","dockerfile":"CartAPI/Dockerfile","context":"CartAPI"}')
+            SERVICES+=('{"name":"cartapi","dockerfile":"CartAPI/Dockerfile","context":"CartAPI","manifest":"k8s/cartapi","deployment":"cartapi","container":"cartapi"}')
           fi
 
           if echo "$CHANGED_FILES" | grep -qE '^OrderAPI/|^k8s/orderapi/'; then
-            SERVICES+=('{"name":"orderapi","dockerfile":"OrderAPI/Dockerfile","context":"OrderAPI"}')
+            SERVICES+=('{"name":"orderapi","dockerfile":"OrderAPI/Dockerfile","context":"OrderAPI","manifest":"k8s/orderapi","deployment":"orderapi","container":"orderapi"}')
           fi
 
           if echo "$CHANGED_FILES" | grep -qE '^ProductAPI/|^k8s/productapi/'; then
-            SERVICES+=('{"name":"productapi","dockerfile":"ProductAPI/Dockerfile","context":"ProductAPI"}')
+            SERVICES+=('{"name":"productapi","dockerfile":"ProductAPI/Dockerfile","context":"ProductAPI","manifest":"k8s/productapi","deployment":"productapi","container":"productapi"}')
           fi
 
           if echo "$CHANGED_FILES" | grep -qE '^UserAPI/|^k8s/userapi/'; then
-            SERVICES+=('{"name":"userapi","dockerfile":"UserAPI/Dockerfile","context":"UserAPI"}')
+            SERVICES+=('{"name":"userapi","dockerfile":"UserAPI/Dockerfile","context":"UserAPI","manifest":"k8s/userapi","deployment":"userapi","container":"userapi"}')
           fi
 
           if [ ${#SERVICES[@]} -eq 0 ]; then
