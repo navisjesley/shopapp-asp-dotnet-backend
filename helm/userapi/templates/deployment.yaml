@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      volumes:
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "{{ .Release.Name }}-kv"
+      containers:
+      - name: {{ .Release.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.container.port }}
+        volumeMounts:
+        - name: secrets-store
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        env:
+
+        - name: ASPNETCORE_URLS
+          value: "{{ .Values.aspnetcore.urls }}"
+
+        - name: AzureAd__Instance
+          value: "{{ .Values.azureAd.instance }}"
+
+        - name: Authorization__UserApiAccessRole
+          value: "{{ .Values.authorization.userApiAccessRole }}"
+
+        - name: AzureAd__TenantId
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: AzureAd__TenantId
+
+        - name: AzureAd__ClientId
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: AzureAd__ClientId
+
+        - name: AzureAd__Audience
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: AzureAd__Audience
+
+        - name: ConnectionStrings__UserDb
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: ConnectionStrings__UserDb
+
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
