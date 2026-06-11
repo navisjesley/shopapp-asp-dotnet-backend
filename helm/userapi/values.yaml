@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: shopappacr.azurecr.io/userapi
-  tag: latest
+  tag: ""
   pullPolicy: Always
 
 container:
