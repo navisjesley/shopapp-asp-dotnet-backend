@@ -29,7 +29,7 @@ authorization:
 keyVault:
   name: shopappkv
   tenantId: 4ca6209d-d0c9-49d9-ad0f-92794eabb398
-  managedIdentityClientId: b239c8e5-ac5c-42cc-9c3d-5a337c96183a
+  managedIdentityClientId: dc02418c-e8eb-414f-86a0-1118258a79fc
 
 resources:
   requests:
