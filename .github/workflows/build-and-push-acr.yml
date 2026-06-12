@@ -128,4 +128,12 @@ jobs:
           --namespace ${{ env.AKS_NAMESPACE }} \
           --create-namespace \
           --set image.tag=${{ github.sha }} \
-          --wait --atomic
+          --wait \
+          --timeout 5m
+
+      - name: Debug deployment
+        if: failure()
+        run: |
+          kubectl get pods -n ${{ env.AKS_NAMESPACE }}
+          kubectl describe deployment ${{ matrix.name }} -n ${{ env.AKS_NAMESPACE }}
+          kubectl describe pods -n ${{ env.AKS_NAMESPACE }}

@@ -25,7 +25,7 @@ azureAd:
 
 authorization:
   userApiAccessRole: "UserApi.Access"
-  userCheck: "lets check"
+  userCheck: "lets check 1"
 
 keyVault:
   name: shopappkv
