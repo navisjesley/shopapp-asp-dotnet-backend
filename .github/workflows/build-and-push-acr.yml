@@ -111,11 +111,12 @@ jobs:
             ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:${{ github.sha }}
             ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:latest
 
-      - name: Set AKS context
+      - name: Set AKS admin context
         uses: Azure/aks-set-context@v4
         with:
           resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+          admin: 'true'
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
