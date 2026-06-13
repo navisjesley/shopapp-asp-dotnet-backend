@@ -1,0 +1,63 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: {{ .Release.Name }}-kv
+spec:
+  provider: azure
+  secretObjects:
+  - secretName: {{ .Release.Name }}-secrets
+    type: Opaque
+    data:
+    - objectName: orderapi-AzureAd--TenantId
+      key: AzureAd__TenantId
+    - objectName: orderapi-AzureAd--ClientId
+      key: AzureAd__ClientId
+    - objectName: orderapi-AzureAd--Audience
+      key: AzureAd__Audience
+    - objectName: ConnectionStrings--OrderDb
+      key: ConnectionStrings__OrderDb
+    - objectName: orderapi-UserApi--BaseUrl
+      key: UserApi__BaseUrl
+    - objectName: orderapi-UserApi--Resource
+      key: UserApi__Resource
+    - objectName: orderapi-UserApi--TenantId
+      key: UserApi__TenantId
+    - objectName: orderapi-UserApi--ClientId
+      key: UserApi__ClientId
+    - objectName: orderapi-UserApi--ClientSecret
+      key: UserApi__ClientSecret
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: "{{ .Values.keyVault.managedIdentityClientId }}"
+    keyvaultName: "{{ .Values.keyVault.name }}"
+    tenantId: "{{ .Values.keyVault.tenantId }}"
+    objects: |
+      array:
+        - |
+          objectName: orderapi-AzureAd--TenantId
+          objectType: secret
+        - |
+          objectName: orderapi-AzureAd--ClientId
+          objectType: secret
+        - |
+          objectName: orderapi-AzureAd--Audience
+          objectType: secret
+        - |
+          objectName: ConnectionStrings--OrderDb
+          objectType: secret
+        - |
+          objectName: orderapi-UserApi--BaseUrl
+          objectType: secret
+        - |
+          objectName: orderapi-UserApi--Resource
+          objectType: secret
+        - |
+          objectName: orderapi-UserApi--TenantId
+          objectType: secret
+        - |
+          objectName: orderapi-UserApi--ClientId
+          objectType: secret
+        - |
+          objectName: orderapi-UserApi--ClientSecret
+          objectType: secret
