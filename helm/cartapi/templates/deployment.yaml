@@ -67,35 +67,35 @@ spec:
               name: {{ .Release.Name }}-secrets
               key: ConnectionStrings__CartDb
 
-            - name: UserApi__BaseUrl
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: UserApi__BaseUrl
+        - name: UserApi__BaseUrl
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: UserApi__BaseUrl
 
-            - name: UserApi__Resource
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: UserApi__Resource
+        - name: UserApi__Resource
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: UserApi__Resource
 
-            - name: UserApi__TenantId
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: UserApi__TenantId
+        - name: UserApi__TenantId
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: UserApi__TenantId
 
-            - name: UserApi__ClientId
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: UserApi__ClientId
+        - name: UserApi__ClientId
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: UserApi__ClientId
 
-            - name: UserApi__ClientSecret
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: UserApi__ClientSecret
+        - name: UserApi__ClientSecret
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: UserApi__ClientSecret
 
         resources:
 {{ toYaml .Values.resources | indent 10 }}
