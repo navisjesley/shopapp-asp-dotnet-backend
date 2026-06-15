@@ -22,6 +22,7 @@ aspnetcore:
 
 azureAd:
   instance: "https://login.microsoftonline.com/"
+  testPipeline: "1"
 
 authorization:
   orderApiAccessRole: "OrderApi.Access"
@@ -29,7 +30,7 @@ authorization:
 keyVault:
   name: shopappkv
   tenantId: 4ca6209d-d0c9-49d9-ad0f-92794eabb398
-  managedIdentityClientId: dc02418c-e8eb-414f-86a0-1118258a79fc
+  managedIdentityClientId: 0182215e-af91-4764-9ec4-6dc93981338f
 
 resources:
   requests:
