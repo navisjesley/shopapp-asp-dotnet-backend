@@ -7,6 +7,7 @@ using UserAPI.Data;
 
 namespace UserAPI.Tests.Controllers;
 
+// PR validation trigger test
 public class UserControllerTests
 {
     [Fact]
