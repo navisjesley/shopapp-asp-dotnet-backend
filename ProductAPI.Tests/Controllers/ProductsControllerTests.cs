@@ -6,7 +6,7 @@ using ProductAPI.Data;
 
 namespace ProductAPI.Tests.Controllers;
 
-// PR validation trigger test 1
+// PR validation trigger test 2
 public class ProductsControllerTests
 {
     [Fact]
