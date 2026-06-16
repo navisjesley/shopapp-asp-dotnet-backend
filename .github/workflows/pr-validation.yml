@@ -209,3 +209,27 @@ jobs:
         run: |
           helm template userapi ./helm/userapi \
             --set image.tag=test > /dev/null
+
+  pr-validation:
+    needs:
+      - validate-cartapi
+      - validate-orderapi
+      - validate-productapi
+      - validate-userapi
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify results
+        run: |
+          for result in \
+            "${{ needs.validate-cartapi.result }}" \
+            "${{ needs.validate-orderapi.result }}" \
+            "${{ needs.validate-productapi.result }}" \
+            "${{ needs.validate-userapi.result }}"
+          do
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "Validation failed: $result"
+              exit 1
+            fi
+          done
