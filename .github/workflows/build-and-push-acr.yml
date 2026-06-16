@@ -8,6 +8,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'CartAPI/**'
+      - 'CartAPI.Tests/**'
+      - 'ProductAPI/**'
+      - 'ProductAPI.Tests/**'
+      - 'OrderAPI/**'
+      - 'OrderAPI.Tests/**'
+      - 'UserAPI/**'
+      - 'UserAPI.Tests/**'
+      - 'helm/**'
+      - '.github/workflows/build-and-push-acr.yml'
 
 env:
   ACR_NAME: ${{ vars.ACR_NAME }}

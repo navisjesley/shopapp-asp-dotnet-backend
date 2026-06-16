@@ -1,0 +1,211 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'CartAPI/**'
+      - 'CartAPI.Tests/**'
+      - 'OrderAPI/**'
+      - 'OrderAPI.Tests/**'
+      - 'ProductAPI/**'
+      - 'ProductAPI.Tests/**'
+      - 'UserAPI/**'
+      - 'UserAPI.Tests/**'
+      - 'helm/**'
+      - '.github/workflows/pr-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      cartapi: ${{ steps.changed.outputs.cartapi }}
+      orderapi: ${{ steps.changed.outputs.orderapi }}
+      productapi: ${{ steps.changed.outputs.productapi }}
+      userapi: ${{ steps.changed.outputs.userapi }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: changed
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cartapi:
+              - 'CartAPI/**'
+              - 'CartAPI.Tests/**'
+              - 'helm/cartapi/**'
+
+            orderapi:
+              - 'OrderAPI/**'
+              - 'OrderAPI.Tests/**'
+              - 'helm/orderapi/**'
+
+            productapi:
+              - 'ProductAPI/**'
+              - 'ProductAPI.Tests/**'
+              - 'helm/productapi/**'
+
+            userapi:
+              - 'UserAPI/**'
+              - 'UserAPI.Tests/**'
+              - 'helm/userapi/**'
+
+  validate-cartapi:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cartapi == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore API
+        run: dotnet restore CartAPI/CartAPI.csproj
+
+      - name: Restore Tests
+        run: dotnet restore CartAPI.Tests/CartAPI.Tests.csproj
+
+      - name: Build API
+        run: dotnet build CartAPI/CartAPI.csproj --configuration Release --no-restore
+
+      - name: Build Tests
+        run: dotnet build CartAPI.Tests/CartAPI.Tests.csproj --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test CartAPI.Tests/CartAPI.Tests.csproj --configuration Release --no-build
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint ./helm/cartapi
+
+      - name: Helm template validation
+        run: |
+          helm template cartapi ./helm/cartapi \
+            --set image.tag=test > /dev/null
+
+  validate-orderapi:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.orderapi == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore API
+        run: dotnet restore OrderAPI/OrderAPI.csproj
+
+      - name: Restore Tests
+        run: dotnet restore OrderAPI.Tests/OrderAPI.Tests.csproj
+
+      - name: Build API
+        run: dotnet build OrderAPI/OrderAPI.csproj --configuration Release --no-restore
+
+      - name: Build Tests
+        run: dotnet build OrderAPI.Tests/OrderAPI.Tests.csproj --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test OrderAPI.Tests/OrderAPI.Tests.csproj --configuration Release --no-build
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint ./helm/orderapi
+
+      - name: Helm template validation
+        run: |
+          helm template orderapi ./helm/orderapi \
+            --set image.tag=test > /dev/null
+
+  validate-productapi:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.productapi == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore API
+        run: dotnet restore ProductAPI/ProductAPI.csproj
+
+      - name: Restore Tests
+        run: dotnet restore ProductAPI.Tests/ProductAPI.Tests.csproj
+
+      - name: Build API
+        run: dotnet build ProductAPI/ProductAPI.csproj --configuration Release --no-restore
+
+      - name: Build Tests
+        run: dotnet build ProductAPI.Tests/ProductAPI.Tests.csproj --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test ProductAPI.Tests/ProductAPI.Tests.csproj --configuration Release --no-build
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint ./helm/productapi
+
+      - name: Helm template validation
+        run: |
+          helm template productapi ./helm/productapi \
+            --set image.tag=test > /dev/null
+
+  validate-userapi:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.userapi == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore API
+        run: dotnet restore UserAPI/UserAPI.csproj
+
+      - name: Restore Tests
+        run: dotnet restore UserAPI.Tests/UserAPI.Tests.csproj
+
+      - name: Build API
+        run: dotnet build UserAPI/UserAPI.csproj --configuration Release --no-restore
+
+      - name: Build Tests
+        run: dotnet build UserAPI.Tests/UserAPI.Tests.csproj --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test UserAPI.Tests/UserAPI.Tests.csproj --configuration Release --no-build
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint ./helm/userapi
+
+      - name: Helm template validation
+        run: |
+          helm template userapi ./helm/userapi \
+            --set image.tag=test > /dev/null
