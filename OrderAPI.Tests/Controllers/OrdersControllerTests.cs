@@ -8,7 +8,7 @@ using OrderAPI.Services;
 
 namespace OrderAPI.Tests.Controllers;
 
-// PR validation trigger test 1
+// PR validation trigger test 2
 public class OrdersControllerTests
 {
     [Fact]
