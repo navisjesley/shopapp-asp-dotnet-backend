@@ -4,17 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'CartAPI/**'
-      - 'CartAPI.Tests/**'
-      - 'OrderAPI/**'
-      - 'OrderAPI.Tests/**'
-      - 'ProductAPI/**'
-      - 'ProductAPI.Tests/**'
-      - 'UserAPI/**'
-      - 'UserAPI.Tests/**'
-      - 'helm/**'
-      - '.github/workflows/pr-validation.yml'
 
 permissions:
   contents: read
