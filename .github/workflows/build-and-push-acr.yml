@@ -11,6 +11,7 @@ on:
       - 'UserAPI/**'
       - 'helm/**'
       - '.github/workflows/build-and-push-acr.yml'
+  workflow_dispatch:
 
 permissions:
   id-token: write
