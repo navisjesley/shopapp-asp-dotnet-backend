@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  repository: shopappacr.azurecr.io/orderapi
+  tag: ""
+  pullPolicy: Always
+
+container:
+  port: 8080
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+  internalLoadBalancer: true
+
+nodeSelector:
+  kubernetes.azure.com/mode: system
+
+aspnetcore:
+  urls: "http://+:8080"
+
+azureAd:
+  instance: "https://login.microsoftonline.com/"
+  testPipeline: "1"
+
+authorization:
+  orderApiAccessRole: "OrderApi.Access"
+
+keyVault:
+  name: shopappkv-test
+  tenantId: 4ca6209d-d0c9-49d9-ad0f-92794eabb398
+  managedIdentityClientId: 9448078b-7a32-451c-bfaa-dd0ccfd5cc24
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  
+  limits:
+    cpu: 500m
+    memory: 512Mi

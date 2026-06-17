@@ -1,8 +1,4 @@
-name: Build and Push Changed Services to ACR
-
-permissions:
-  id-token: write
-  contents: read
+name: Build and Deploy Changed Services to AKS
 
 on:
   push:
@@ -10,18 +6,15 @@ on:
       - main
     paths:
       - 'CartAPI/**'
-      - 'ProductAPI/**'
       - 'OrderAPI/**'
+      - 'ProductAPI/**'
       - 'UserAPI/**'
       - 'helm/**'
       - '.github/workflows/build-and-push-acr.yml'
 
-env:
-  ACR_NAME: ${{ vars.ACR_NAME }}
-  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
-  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
-  AKS_CLUSTER_NAME: ${{ vars.AKS_CLUSTER_NAME }}
-  AKS_NAMESPACE: ${{ vars.AKS_NAMESPACE }}
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   detect-changes:
@@ -77,12 +70,14 @@ jobs:
 
           JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -cs '{include: .}')
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
-          echo 'has_changes=true' >> "$GITHUB_OUTPUT"
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
-  build-and-deploy:
+  build-and-deploy-test:
+    name: Build and Deploy To Test
     runs-on: ubuntu-latest
     needs: detect-changes
     if: needs.detect-changes.outputs.has_changes == 'true'
+    environment: test
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
@@ -91,23 +86,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Azure login (OIDC)
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set up QEMU
+      - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Buildx
+      - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to ACR
-        run: az acr login --name ${{ env.ACR_NAME }}
+      - name: Login To ACR
+        run: az acr login --name ${{ vars.ACR_NAME }}
 
-      - name: Build and push linux/arm64 image
+      - name: Build And Push Linux/ARM64 Image
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
@@ -115,32 +110,84 @@ jobs:
           push: true
           platforms: linux/arm64
           tags: |
-            ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:${{ github.sha }}
-            ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.name }}:latest
+            ${{ vars.ACR_LOGIN_SERVER }}/${{ matrix.name }}:${{ github.sha }}
+            ${{ vars.ACR_LOGIN_SERVER }}/${{ matrix.name }}:latest
 
-      - name: Set AKS admin context
+      - name: Set AKS Admin Context
         uses: Azure/aks-set-context@v4
         with:
-          resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+          resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
           admin: 'true'
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
 
-      - name: Deploy via Helm upgrade
+      - name: Deploy To Test
         run: |
           helm upgrade --install ${{ matrix.name }} \
           ./${{ matrix.chart }} \
-          --namespace ${{ env.AKS_NAMESPACE }} \
+          --namespace ${{ vars.AKS_NAMESPACE }} \
           --create-namespace \
+          -f ./${{ matrix.chart }}/values-test.yaml \
           --set image.tag=${{ github.sha }} \
           --wait \
-          --timeout 5m
+          --timeout 10m
 
-      - name: Debug deployment
+      - name: Debug Deployment
         if: failure()
         run: |
-          kubectl get pods -n ${{ env.AKS_NAMESPACE }}
-          kubectl describe deployment ${{ matrix.name }} -n ${{ env.AKS_NAMESPACE }}
-          kubectl describe pods -n ${{ env.AKS_NAMESPACE }}
+          kubectl get pods -n ${{ vars.AKS_NAMESPACE }}
+          kubectl describe deployment ${{ matrix.name }} -n ${{ vars.AKS_NAMESPACE }}
+          kubectl describe pods -n ${{ vars.AKS_NAMESPACE }}
+
+  deploy-prod:
+    name: Deploy To Production
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - deploy-test
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    environment: prod
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set AKS Admin Context
+        uses: Azure/aks-set-context@v4
+        with:
+          resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+          admin: 'true'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy To Production
+        run: |
+          helm upgrade --install ${{ matrix.name }} \
+          ./${{ matrix.chart }} \
+          --namespace ${{ vars.AKS_NAMESPACE }} \
+          --create-namespace \
+          -f ./${{ matrix.chart }}/values-prod.yaml \
+          --set image.tag=${{ github.sha }} \
+          --wait \
+          --timeout 10m
+
+      - name: Debug Deployment
+        if: failure()
+        run: |
+          kubectl get pods -n ${{ vars.AKS_NAMESPACE }}
+          kubectl describe deployment ${{ matrix.name }} -n ${{ vars.AKS_NAMESPACE }}
+          kubectl describe pods -n ${{ vars.AKS_NAMESPACE }}

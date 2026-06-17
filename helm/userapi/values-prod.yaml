@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  repository: shopappacr.azurecr.io/userapi
+  tag: ""
+  pullPolicy: Always
+
+container:
+  port: 8080
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+  internalLoadBalancer: true
+
+nodeSelector:
+  kubernetes.azure.com/mode: system
+
+aspnetcore:
+  urls: "http://+:8080"
+
+azureAd:
+  instance: "https://login.microsoftonline.com/"
+  testPipeline: "1"
+
+authorization:
+  userApiAccessRole: "UserApi.Access"
+
+keyVault:
+  name: shopappkv-prod
+  tenantId: 4ca6209d-d0c9-49d9-ad0f-92794eabb398
+  managedIdentityClientId: 13affaf5-e598-4810-8bae-3e9d5268e395
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  
+  limits:
+    cpu: 500m
+    memory: 512Mi
