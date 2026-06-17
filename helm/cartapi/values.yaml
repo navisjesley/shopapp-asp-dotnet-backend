@@ -22,7 +22,7 @@ aspnetcore:
 
 azureAd:
   instance: "https://login.microsoftonline.com/"
-  testPipeline: "1"
+  testPipeline: "2"
 
 authorization:
   cartApiAccessRole: "CartApi.Access"
